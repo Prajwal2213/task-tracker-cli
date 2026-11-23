@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from storage import save_tasks
+from storage import save_task
 
 
 def new_task(tasks, desc):
@@ -17,7 +17,7 @@ def new_task(tasks, desc):
     }
 
     tasks.append(data)
-    save_tasks(tasks)
+    save_task(tasks)
 
     print("The Task id is {0}".format(task_id))
 
@@ -35,7 +35,7 @@ def update_task(task_id, desc, tasks):
     req_task["desc"] = desc
     req_task["updated_at"] = datetime.now().isoformat()
 
-    save_tasks(tasks)
+    save_task(tasks)
     print("Task updated successfully")
 
 
@@ -51,7 +51,7 @@ def delete_task(task_id, tasks):
 
     tasks[:] = [task for task in tasks if task["id"] != task_id]
 
-    save_tasks(tasks)
+    save_task(tasks)
     print("Task deleted successfully")
 
 
@@ -77,7 +77,7 @@ def mark_progress(task_id, tasks, status):
 
     req_task["updated_at"] = datetime.now().isoformat()
 
-    save_tasks(tasks)
+    save_task(tasks)
     print("Task status updated successfully")
 
 

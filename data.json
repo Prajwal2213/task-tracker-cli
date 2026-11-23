@@ -1,16 +1,16 @@
 [
     {
-        "id": 4,
-        "desc": "learn python",
-        "status": "todo",
-        "created_at": "2026-11-19T08:38:02.044391",
-        "updated_at": "2026-11-19T08:38:02.044391"
-    },
-    {
         "id": 5,
         "desc": "learn ai engineering for python",
         "status": "in-progress",
         "created_at": "2026-11-19T08:38:17.752930",
         "updated_at": "2026-11-19T08:38:45.762698"
+    },
+    {
+        "id": 6,
+        "desc": "Learn RAG, Agents, GuardRails",
+        "status": "in-progress",
+        "created_at": "2026-11-23T21:53:08.098993",
+        "updated_at": "2026-11-23T21:54:22.078038"
     }
 ]
