@@ -1,7 +1,7 @@
 
 import argparse
 
-from storage import load_tasks
+from storage import load_task
 from task_manager import (
     new_task,
     update_task,
@@ -53,7 +53,7 @@ def main():
 
     args = parser.parse_args()
 
-    tasks = load_tasks()
+    tasks = load_task()
 
     if args.command == "add":
         desc = " ".join(args.desc)
