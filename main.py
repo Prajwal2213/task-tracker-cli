@@ -1,137 +1,83 @@
-from sys import argv
-import json
-from datetime import datetime
 
-def new_task(tasks, desc):
-    task_id = max([task["id"] for task in tasks], default = 0) + 1
+import argparse
 
-    now = datetime.now().isoformat()
-
-    data = {
-        "id": task_id,
-        "desc" : desc,
-        "status": "todo",
-        "created_at": now,
-        "updated_at": now
-    }
-
-    tasks.append(data)
-
-    with open("data.json", "w") as file:
-        json.dump(tasks, file, indent = 4)
-        
-    print("The Task id is {0}".format(task_id))
-    
-def update_task(id, desc, tasks):
-    req_task = next((task for task in tasks if task["id"] == id), None)
-    
-    if req_task is None:
-        print("task does not exits")
-        return
-
-    req_task["desc"] = desc
-    req_task["updated_at"] = datetime.now().isoformat()
-    try:
-        with open("data.json", "w") as file:
-            json.dump(tasks, file, indent=4)
-    except (FileNotFoundError, json.JSONDecodeError):
-        print("task not found")
-
-def delete_task(id, tasks):
-    req_task = next((task for task in tasks if task["id"] == id), None)
-    
-    if req_task is None:
-        print("Task does not exist")
-        return
-
-    tasks = [task for task in tasks if task["id"] != id]
-    
-    with open("data.json", "w") as file:
-        json.dump(tasks, file, indent=4)
-
-    print_list(tasks)
-
-def mark_progress(task_id,tasks, status):
-
-    req_task = next((task for task in tasks if task["id"] == task_id), None)
-
-    if req_task is None:
-        print("Task does not exist")
-        return
-
-    req_task["status"] = status[5:]
-
-    with open("data.json", "w")as file:
-        json.dump(tasks, file, indent = 4)
-
-def print_list(tasks):
-    if not tasks:
-        print("\nNo tasks found!")
-        return
-
-    print("\n" + "=" * 65)
-    print(f"{'TASK ID':<12}{'DESCRIPTION':<35}{'STATUS':<15}")
-    print("=" * 65)
-
-    for task in tasks:
-        print(f"{task['id']:<12}{task['desc'].capitalize():<35}{task['status'].upper():<15}")
-
-    print("=" * 65)
-
-def print_list_progress(tasks, status):
-    if not tasks:
-        print("\n No tasks found!")
-        return
-
-    progress_list = []
-
-    for task in tasks:
-        if task["status"] == status.lower():
-            progress_list.append(task)
-
-    print_list(progress_list)
-
-
-
-
-
-
+from storage import load_tasks
+from task_manager import (
+    new_task,
+    update_task,
+    delete_task,
+    mark_progress,
+    print_list,
+    print_list_progress
+)
 
 
 def main():
-    fun_call = argv[1].lower()
+    parser = argparse.ArgumentParser(
+        description="Task Tracker CLI"
+    )
 
-    if len(argv) > 2:
-        if argv[2].isnumeric():
-            task_id = int(argv[2])
-            desc = argv[3] if len(argv) > 3 else None
-        else:
-            desc = argv[2]
-            task_id = None
-    
-    try:
-        with open("data.json", "r") as file:
-            tasks = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        tasks = []
-       
-    if fun_call == "add":
+    subparsers = parser.add_subparsers(
+        dest="command",
+        required=True
+    )
+
+    # Add command
+    add_parser = subparsers.add_parser("add")
+    add_parser.add_argument("desc", nargs="+")
+
+    # Update command
+    update_parser = subparsers.add_parser("update")
+    update_parser.add_argument("id", type=int)
+    update_parser.add_argument("desc", nargs="+")
+
+    # Delete command
+    delete_parser = subparsers.add_parser("delete")
+    delete_parser.add_argument("id", type=int)
+
+    # Mark in-progress
+    progress_parser = subparsers.add_parser("mark-in-progress")
+    progress_parser.add_argument("id", type=int)
+
+    # Mark done
+    done_parser = subparsers.add_parser("mark-done")
+    done_parser.add_argument("id", type=int)
+
+    # List command
+    list_parser = subparsers.add_parser("list")
+    list_parser.add_argument(
+        "status",
+        nargs="?",
+        choices=["todo", "in-progress", "done"]
+    )
+
+    args = parser.parse_args()
+
+    tasks = load_tasks()
+
+    if args.command == "add":
+        desc = " ".join(args.desc)
         new_task(tasks, desc)
-    elif fun_call == "update":
-        update_task(task_id, desc, tasks)
-        
-    elif fun_call == "delete":
-        delete_task(task_id, tasks)
-    elif fun_call == "mark-in-progress" or fun_call == "mark-done":
-        mark_progress(task_id, tasks, fun_call)
-    if len(argv) == 2:
-        print_list(tasks)
-    elif len(argv) == 3:
-        print_list_progress(tasks, argv[2])
 
-    
+    elif args.command == "update":
+        desc = " ".join(args.desc)
+        update_task(args.id, desc, tasks)
+
+    elif args.command == "delete":
+        delete_task(args.id, tasks)
+
+    elif args.command == "mark-in-progress":
+        mark_progress(args.id, tasks, args.command)
+
+    elif args.command == "mark-done":
+        mark_progress(args.id, tasks, args.command)
+
+    elif args.command == "list":
+        if args.status:
+            print_list_progress(tasks, args.status)
+        else:
+            print_list(tasks)
+
+
 if __name__ == "__main__":
     main()
-    
-
-    
