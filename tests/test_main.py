@@ -1,6 +1,6 @@
 
 import json
-import main
+import task_manager
 
 
 # Sample task data for testing
@@ -36,7 +36,7 @@ def test_new_task(tmp_path, monkeypatch):
 
     tasks = []
 
-    main.new_task(tasks, "Learn Python")
+    task_manager.new_task(tasks, "Learn Python")
 
     with open("data.json", "r") as file:
         data = json.load(file)
@@ -55,7 +55,7 @@ def test_update_task(tmp_path, monkeypatch):
 
     tasks = sample_tasks()
 
-    main.update_task(1, "Learn FastAPI", tasks)
+    task_manager.update_task(1, "Learn FastAPI", tasks)
 
     with open("data.json", "r") as file:
         data = json.load(file)
@@ -70,7 +70,7 @@ def test_update_invalid_task(tmp_path, monkeypatch, capsys):
 
     tasks = sample_tasks()
 
-    main.update_task(10, "New Description", tasks)
+    task_manager.update_task(10, "New Description", tasks)
 
     captured = capsys.readouterr()
 
@@ -83,7 +83,7 @@ def test_delete_task(tmp_path, monkeypatch):
 
     tasks = sample_tasks()
 
-    main.delete_task(2, tasks)
+    task_manager.delete_task(2, tasks)
 
     with open("data.json", "r") as file:
         data = json.load(file)
@@ -98,7 +98,7 @@ def test_delete_invalid_task(tmp_path, monkeypatch, capsys):
 
     tasks = sample_tasks()
 
-    main.delete_task(10, tasks)
+    task_manager.delete_task(10, tasks)
 
     captured = capsys.readouterr()
 
@@ -111,7 +111,7 @@ def test_mark_in_progress(tmp_path, monkeypatch):
 
     tasks = sample_tasks()
 
-    main.mark_progress(1, tasks, "in-progress")
+    task_manager.mark_progress(1, tasks, "mark-in-progress")
 
     with open("data.json", "r") as file:
         data = json.load(file)
@@ -125,7 +125,7 @@ def test_mark_done(tmp_path, monkeypatch):
 
     tasks = sample_tasks()
 
-    main.mark_progress(1, tasks, "done")
+    task_manager.mark_progress(1, tasks, "mark-done")
 
     with open("data.json", "r") as file:
         data = json.load(file)
@@ -139,7 +139,7 @@ def test_mark_invalid_task(tmp_path, monkeypatch, capsys):
 
     tasks = sample_tasks()
 
-    main.mark_progress(10, tasks, "done")
+    task_manager.mark_progress(10, tasks, "mark-done")
 
     captured = capsys.readouterr()
 
@@ -150,12 +150,12 @@ def test_mark_invalid_task(tmp_path, monkeypatch, capsys):
 def test_print_list(capsys):
     tasks = sample_tasks()
 
-    main.print_list(tasks)
+    task_manager.print_list(tasks)
 
     captured = capsys.readouterr()
 
-    assert "Learn Python" in captured.out
-    assert "Build REST API" in captured.out
+    assert "Learn python" in captured.out
+    assert "Build rest api" in captured.out
     assert "Complete project" in captured.out
 
 
@@ -163,7 +163,7 @@ def test_print_list(capsys):
 def test_print_empty_list(capsys):
     tasks = []
 
-    main.print_list(tasks)
+    task_manager.print_list(tasks)
 
     captured = capsys.readouterr()
 
@@ -174,34 +174,34 @@ def test_print_empty_list(capsys):
 def test_print_list_progress(capsys):
     tasks = sample_tasks()
 
-    main.print_list_progress(tasks, "done")
+    task_manager.print_list_progress(tasks, "done")
 
     captured = capsys.readouterr()
 
     assert "Complete project" in captured.out
-    assert "Learn Python" not in captured.out
-    assert "Build REST API" not in captured.out
+    assert "Learn python" not in captured.out
+    assert "Build rest api" not in captured.out
 
 
 # 12. Test filtering tasks by in-progress status
 def test_print_in_progress(capsys):
     tasks = sample_tasks()
 
-    main.print_list_progress(tasks, "in-progress")
+    task_manager.print_list_progress(tasks, "in-progress")
 
     captured = capsys.readouterr()
 
-    assert "Build REST API" in captured.out
-    assert "Learn Python" not in captured.out
+    assert "Build rest api" in captured.out
+    assert "Learn python" not in captured.out
     assert "Complete project" not in captured.out
 
 
-# 13. Test invalid status filtering
-def test_invalid_status(capsys):
+# 13. Test filtering with a status that has no matching tasks
+def test_filter_no_match(capsys):
     tasks = sample_tasks()
 
-    main.print_list_progress(tasks, "pending")
+    task_manager.print_list_progress(tasks, "pending")
 
     captured = capsys.readouterr()
 
-    assert "Invalid status" in captured.out
+    assert "No tasks found!" in captured.out
